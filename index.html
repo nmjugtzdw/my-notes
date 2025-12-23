@@ -403,11 +403,58 @@
             }
         }
 
-        function doExport(text, id) {
+        async function doExport(text, id) {
             const date = new Date().toISOString().split('T')[0];
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `CloudNote_${id}_${date}.txt`; a.click();
+            const pw = document.getElementById('mainPw').value;
+            
+            try {
+                // 获取笔记数据以检查是否有图片
+                const res = await fetch(`${API_URL}/api/list`, { headers: { 'Authorization': ADMIN_KEY } });
+                const notes = await res.json();
+                const note = notes.find(n => n.id === id);
+                
+                // 导出文本
+                const textBlob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const textUrl = URL.createObjectURL(textBlob);
+                const textLink = document.createElement('a');
+                textLink.href = textUrl;
+                textLink.download = `CloudNote_${id}_${date}.txt`;
+                textLink.click();
+                URL.revokeObjectURL(textUrl);
+                
+                // 如果有图片，也导出图片
+                if (note && note.has_image && note.image_data) {
+                    try {
+                        const imgBlob = await decryptImage({
+                            data: note.image_data,
+                            iv: JSON.parse(note.image_iv || '[]'),
+                            type: note.image_type
+                        }, pw);
+                        
+                        // 获取图片扩展名
+                        const ext = note.image_type.split('/')[1] || 'png';
+                        const imgUrl = URL.createObjectURL(imgBlob);
+                        const imgLink = document.createElement('a');
+                        imgLink.href = imgUrl;
+                        imgLink.download = `CloudNote_${id}_${date}_image.${ext}`;
+                        
+                        // 延迟一点下载图片，避免浏览器阻止多次下载
+                        setTimeout(() => {
+                            imgLink.click();
+                            URL.revokeObjectURL(imgUrl);
+                            showToast('✅ 已导出文本和图片');
+                        }, 500);
+                    } catch (e) {
+                        console.error('图片导出失败:', e);
+                        showToast('⚠️ 文本已导出，但图片解密失败');
+                    }
+                } else {
+                    showToast('✅ 已导出文本');
+                }
+            } catch (e) {
+                console.error('导出失败:', e);
+                showToast('❌ 导出失败: ' + e.message);
+            }
         }
 
         async function doDelete(id) {
