@@ -1,140 +1,714 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>正在跳转...</title>
+    <title>CloudNotes | 2026 隐私加密笔记</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#020617">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
         }
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .icon { font-size: 64px; margin-bottom: 20px; animation: bounce 1s infinite; }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+
+        .gradient-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        h1 { font-size: 28px; margin-bottom: 15px; font-weight: 800; }
-        p { font-size: 14px; opacity: 0.9; line-height: 1.6; margin-bottom: 30px; }
-        .btn {
-            display: inline-block;
-            background: white;
-            color: #667eea;
-            padding: 15px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+        .gradient-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); }
-        .steps {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 20px;
-            margin-top: 30px;
-            text-align: left;
-            font-size: 13px;
+
+        .note-card {
+            transition: all 0.3s ease;
         }
-        .steps h3 { margin-bottom: 15px; font-size: 16px; }
-        .steps li { margin: 10px 0; padding-left: 10px; }
-        .url-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 20px 0;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 12px;
-            cursor: pointer;
+
+        .note-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(30, 41, 59, 0.9);
         }
-        .copy-hint { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+
+        /* 隐藏滚动条但保留功能 */
+        ::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .copy-btn-success {
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="icon">🚀</div>
-        <h1>请在浏览器中打开</h1>
-        <p>检测到您正在微信/QQ等应用中访问，为了获得最佳体验，请在浏览器中打开此链接</p>
-        
-        <div class="url-box" id="urlBox" onclick="copyUrl()">
-            <div id="targetUrl">加载中...</div>
-            <div class="copy-hint">点击复制链接</div>
-        </div>
 
-        <div class="steps">
-            <h3>📱 操作步骤：</h3>
-            <ol>
-                <li>点击上方链接复制</li>
-                <li>点击右上角 [...] 菜单</li>
-                <li>选择"在浏览器中打开"或"在Safari中打开"</li>
-            </ol>
-        </div>
+<body class="min-h-screen selection:bg-blue-500/30">
+    <div id="app" class="max-w-3xl mx-auto px-6 py-12 md:py-20">
+        <!-- 动态加载区 -->
+    </div>
 
-        <p style="margin-top: 20px; font-size: 12px; opacity: 0.6;">
-            如无法打开，请将链接复制到 Safari、Chrome 等浏览器中访问
-        </p>
+    <!-- 极简设置弹窗 -->
+    <div id="settingsModal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl space-y-6">
+            <h2 class="text-2xl font-extrabold tracking-tight">⚙️ 系统配置</h2>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] uppercase tracking-widest text-slate-400 font-bold ml-1">Worker
+                        服务地址</label>
+                    <input id="setApi" type="text" placeholder="https://..."
+                        class="w-full bg-slate-900/50 border border-slate-700 p-4 rounded-2xl outline-none focus:ring-2 ring-blue-500/50 text-sm transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] uppercase tracking-widest text-slate-400 font-bold ml-1">管理员密钥</label>
+                    <input id="setKey" type="password" placeholder="••••••••"
+                        class="w-full bg-slate-900/50 border border-slate-700 p-4 rounded-2xl outline-none focus:ring-2 ring-blue-500/50 text-sm transition-all">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeSettings()"
+                    class="flex-1 py-4 text-slate-400 font-semibold rounded-2xl hover:bg-slate-800 transition">取消</button>
+                <button onclick="saveSettings()"
+                    class="flex-1 py-4 gradient-btn text-white font-bold rounded-2xl">保存</button>
+            </div>
+            <div class="text-center pt-2">
+                <a href="https://www.zzzmxxkj.com" target="_blank"
+                    class="text-[10px] text-slate-600 hover:text-slate-400 font-bold tracking-widest uppercase">访问官网
+                    www.zzzmxxkj.com</a>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 获取URL参数
         const urlParams = new URLSearchParams(window.location.search);
-        const targetUrl = urlParams.get('target') || urlParams.get('url');
-        
-        if (targetUrl) {
-            try {
-                const decodedUrl = decodeURIComponent(targetUrl);
-                document.getElementById('targetUrl').textContent = decodedUrl;
-                
-                // 检测是否在微信/QQ等应用内
-                const ua = navigator.userAgent.toLowerCase();
-                const isInApp = ua.includes('micromessenger') || ua.includes('qq/') || ua.includes('dingtalk');
-                
-                // 如果不在应用内，直接跳转
-                if (!isInApp) {
-                    window.location.href = decodedUrl;
-                }
-            } catch (e) {
-                document.getElementById('targetUrl').textContent = '链接格式错误';
-            }
-        } else {
-            document.getElementById('targetUrl').textContent = '缺少目标链接';
+        let apiFromUrl = urlParams.get('api');
+        const cfgFromUrl = urlParams.get('cfg');
+        if (cfgFromUrl) { try { apiFromUrl = atob(cfgFromUrl); } catch (e) { } }
+        const shareId = urlParams.get('share');
+
+        let API_URL = apiFromUrl || localStorage.getItem('cf_notes_api') || "";
+        let ADMIN_KEY = localStorage.getItem('cf_notes_key') || "";
+
+        const app = document.getElementById('app');
+        let selectedImage = null; // 存储选中的图片文件
+
+        // 微信浏览器检测函数
+        function isWeChat() {
+            const ua = navigator.userAgent.toLowerCase();
+            return ua.includes('micromessenger');
         }
 
-        function copyUrl() {
-            const url = document.getElementById('targetUrl').textContent;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(url).then(() => {
-                    const box = document.getElementById('urlBox');
-                    const original = box.style.background;
-                    box.style.background = 'rgba(0, 255, 0, 0.3)';
-                    setTimeout(() => { box.style.background = original; }, 500);
-                    alert('✅ 链接已复制！请在浏览器中粘贴打开');
-                }).catch(() => {
-                    prompt('请手动复制此链接:', url);
+        // 其他内置浏览器检测（QQ、钉钉等）
+        function isInAppBrowser() {
+            const ua = navigator.userAgent.toLowerCase();
+            
+            // 如果包含 Chrome 但不包含内置浏览器标识,则认为是真正的 Chrome
+            if (ua.includes('chrome') && !ua.includes('micromessenger') &&
+                !ua.includes('qq/') && !ua.includes('dingtalk') &&
+                !ua.includes('alipay')) {
+                return false;
+            }
+            
+            // 如果包含 Safari 但不包含内置浏览器标识,则认为是真正的 Safari
+            if (ua.includes('safari') && !ua.includes('chrome') &&
+                !ua.includes('micromessenger') && !ua.includes('qq/') &&
+                !ua.includes('dingtalk') && !ua.includes('alipay')) {
+                return false;
+            }
+            
+            // 检测常见的内置浏览器
+            return ua.includes('micromessenger') ||
+                   ua.includes('qq/') ||
+                   ua.includes('dingtalk') ||
+                   ua.includes('alipay');
+        }
+
+        // 显示跳转提示页面
+        function showBrowserRedirect() {
+            app.innerHTML = `
+                <div class="glass p-8 md:p-12 rounded-[3rem] shadow-2xl text-center space-y-8 animate-in zoom-in duration-500">
+                    <div class="text-6xl animate-bounce">⚠️</div>
+                    <div class="space-y-4">
+                        <h1 class="text-3xl font-black">请在浏览器中打开</h1>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            为了您的隐私安全，请使用外部浏览器访问此页面
+                        </p>
+                    </div>
+                    
+                    <div class="bg-slate-900/50 p-6 rounded-2xl space-y-4 text-left">
+                        <div class="text-sm text-slate-300 space-y-2">
+                            <p class="font-bold text-blue-400">📱 如何在外部浏览器打开：</p>
+                            <div class="pl-4 space-y-1 text-xs">
+                                <p>• <span class="font-semibold">微信：</span>点击右上角 [ ··· ] → 选择"在浏览器中打开"</p>
+                                <p>• <span class="font-semibold">QQ：</span>点击右上角 [ ··· ] → 选择"在浏览器中打开"</p>
+                                <p>• <span class="font-semibold">钉钉：</span>点击右上角 [ ··· ] → 选择"在浏览器中打开"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 p-4 rounded-2xl">
+                        <p class="text-xs text-orange-300 leading-relaxed">
+                            💡 推荐使用 Safari、Chrome、Edge 等浏览器访问
+                        </p>
+                    </div>
+
+                    <div class="pt-4 text-xs text-slate-600 space-y-2">
+                        <p>当前检测到的浏览器：</p>
+                        <p class="font-mono text-[10px] text-slate-500 break-all">${navigator.userAgent}</p>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/5">
+                        <a href="https://www.zzzmxxkj.com" target="_blank" class="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-slate-400 transition">@桢鸣科技</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 加解密逻辑
+        async function getK(pw) {
+            const enc = new TextEncoder();
+            const hash = await crypto.subtle.digest('SHA-256', enc.encode(pw));
+            return await crypto.subtle.importKey('raw', hash, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+        }
+        async function encrypt(text, pw) {
+            const enc = new TextEncoder(); const iv = crypto.getRandomValues(new Uint8Array(12)); const key = await getK(pw);
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(text));
+            return btoa(JSON.stringify({ iv: Array.from(iv), data: Array.from(new Uint8Array(cipher)) }));
+        }
+        async function decrypt(json, pw) {
+            try {
+                const { iv, data } = JSON.parse(atob(json)); const key = await getK(pw);
+                const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(iv) }, key, new Uint8Array(data));
+                return new TextDecoder().decode(dec);
+            } catch (e) { return null; }
+        }
+
+        function init() {
+            // 如果是分享链接且在内置浏览器中打开，显示跳转提示
+            if (shareId && isInAppBrowser()) {
+                showBrowserRedirect();
+                return;
+            }
+            
+            if (shareId) renderShareView();
+            else if (!API_URL) renderWelcomeView();
+            else renderMainView();
+        }
+
+        function renderWelcomeView() {
+            app.innerHTML = `
+            <div class="glass p-12 rounded-[3rem] text-center space-y-8 animate-in fade-in zoom-in duration-700">
+                <div class="inline-flex p-5 bg-blue-500/10 rounded-full text-5xl">🛡️</div>
+                <div class="space-y-2">
+                    <h1 class="text-4xl font-extrabold tracking-tight italic">CloudNotes</h1>
+                    <p class="text-slate-400 leading-relaxed">您的专属分布式加密笔记系统<br>请先关联您的 Cloudflare Worker 后端</p>
+                </div>
+                <button onclick="configUrl()" class="px-10 py-5 gradient-btn text-white font-black rounded-3xl shadow-2xl">初始化配置</button>
+            </div>
+        `;
+        }
+
+        function renderMainView() {
+            app.innerHTML = `
+            <div class="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <header class="flex justify-between items-end">
+                    <div class="space-y-1">
+                        <h1 class="text-4xl font-extrabold tracking-tighter bg-gradient-to-r from-white to-slate-500 bg-clip-text text-transparent">CloudNotes</h1>
+                        <p class="text-[10px] uppercase tracking-[0.3em] text-blue-500 font-black">端到端加密保险库</p>
+                    </div>
+                    <button onclick="configUrl()" class="p-4 glass rounded-2xl hover:rotate-180 transition-all duration-500 text-xl">⚙️</button>
+                </header>
+
+                <main class="glass p-8 rounded-[2.5rem] shadow-2xl space-y-6 border-white/5">
+                    <input id="mainPw" type="password" placeholder="设置解密主密码 (Passkey)" class="w-full bg-slate-950/50 border border-slate-800 p-5 rounded-2xl outline-none focus:ring-2 ring-blue-500/50 transition-all font-mono">
+                    <textarea id="noteInput" placeholder="在此输入私人内容..." class="w-full bg-slate-950/50 border border-slate-800 p-5 h-48 rounded-2xl outline-none focus:bg-slate-950 transition-all resize-none leading-relaxed"></textarea>
+                    
+                    <!-- 图片上传区域 -->
+                    <div class="border-2 border-dashed border-slate-700/50 rounded-2xl p-6 hover:border-slate-600 transition-all">
+                        <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                        <div class="flex items-center justify-center gap-4">
+                            <button onclick="document.getElementById('imageInput').click()" type="button" class="glass px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition flex items-center gap-2">
+                                📷 <span>添加图片 (可选)</span>
+                            </button>
+                            <span id="imageStatus" class="text-xs text-slate-500">支持 PNG/JPG/GIF/WEBP，最大 700KB</span>
+                        </div>
+                        <div id="imagePreview" class="mt-4 hidden">
+                            <div class="relative inline-block">
+                                <img id="previewImg" class="image-preview rounded-xl border border-slate-700">
+                                <button onclick="clearImage()" type="button" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition text-xs font-bold">✕</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="doSave()" class="gradient-btn text-white py-5 rounded-2xl font-black tracking-widest uppercase text-xs">加密存入云端</button>
+                        <button onclick="doAI()" class="glass text-purple-400 py-5 rounded-2xl font-black tracking-widest uppercase text-xs hover:bg-purple-500/10 transition border-purple-500/20">✨ AI 智能总结</button>
+                    </div>
+                </main>
+
+                <section class="space-y-6">
+                    <div class="flex justify-between items-center px-4">
+                        <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 italic">Vault / 我的加密库</h2>
+                        <button onclick="loadList()" class="text-blue-500 text-xs font-black hover:underline uppercase">刷新列表</button>
+                    </div>
+                    <div id="notesList" class="space-y-4">
+                        <div class="text-center py-20 text-slate-600 italic text-sm">配置暗号并填入密码后点击刷新。</div>
+                    </div>
+                </section>
+                <footer class="text-center pt-8 pb-4 opacity-50 hover:opacity-100 transition duration-500">
+                     <a href="https://www.zzzmxxkj.com" target="_blank" class="text-[10px] text-slate-500 font-bold hover:text-blue-400 uppercase tracking-widest transition">@桢鸣科技</a>
+                </footer>
+            </div>
+        `;
+        }
+
+        function renderShareView() {
+            app.innerHTML = `
+            <div class="glass p-12 rounded-[3rem] shadow-2xl text-center space-y-8 animate-in zoom-in duration-500">
+                <div class="text-6xl animate-bounce">🔥</div>
+                <div class="space-y-2">
+                    <h1 class="text-3xl font-black italic">阅后即焚解密</h1>
+                    <p class="text-slate-400 text-sm">解密后数据将立即从服务器物理擦除</p>
+                </div>
+                <input id="sharePw" type="password" placeholder="请输入 6 位以上解密密码" class="w-full bg-slate-950/50 border border-slate-800 p-5 rounded-2xl outline-none focus:ring-2 ring-orange-500/50 text-center font-mono">
+                <button id="unlockBtn" onclick="doUnlockShare()" class="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] transition">解密并销毁</button>
+                <div id="shareResult" class="mt-8 text-left p-6 bg-slate-950/50 rounded-2xl hidden whitespace-pre-wrap text-sm leading-relaxed border border-orange-500/20 ring-1 ring-orange-500/10 shadow-inner italic text-slate-300"></div>
+                <div id="shareImageResult" class="mt-4 hidden">
+                    <img id="shareImg" class="image-preview rounded-xl border border-orange-500/20 mx-auto">
+                </div>
+                <div class="pt-8 border-t border-white/5">
+                    <a href="https://www.zzzmxxkj.com" target="_blank" class="text-xs font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition underline underline-offset-4">🎬 @桢鸣科技</a>
+                </div>
+            </div>
+        `;
+        }
+
+        /* --- 功能逻辑 --- */
+        function configUrl() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+            document.getElementById('setApi').value = API_URL;
+            document.getElementById('setKey').value = ADMIN_KEY;
+        }
+        function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
+        function saveSettings() {
+            localStorage.setItem('cf_notes_api', document.getElementById('setApi').value);
+            localStorage.setItem('cf_notes_key', document.getElementById('setKey').value);
+            location.reload();
+        }
+
+        async function doSave() {
+            const text = document.getElementById('noteInput').value; const pw = document.getElementById('mainPw').value;
+            if (!text || !pw) return alert("请填写内容和密码");
+            try {
+                const cipher = await encrypt(text, pw);
+                const payload = { content: cipher };
+
+                // 如果有图片，加密并添加到 payload
+                if (selectedImage) {
+                    const imgData = await encryptImage(selectedImage, pw);
+                    payload.has_image = 1;
+                    payload.image_data = imgData.data;
+                    payload.image_type = imgData.type;
+                    payload.image_iv = JSON.stringify(imgData.iv);
+                }
+
+                const res = await fetch(`${API_URL}/api/save`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': ADMIN_KEY },
+                    body: JSON.stringify(payload)
                 });
-            } else {
-                prompt('请手动复制此链接:', url);
+                if (res.ok) {
+                    showToast("✅ 已存入安全库");
+                    document.getElementById('noteInput').value = "";
+                    clearImage();
+                    loadList();
+                } else {
+                    const errorData = await res.json().catch(() => ({}));
+                    const errorMsg = errorData.error || "保存失败";
+                    const hint = errorData.hint ? `\n\n💡 提示: ${errorData.hint}` : "";
+                    alert(`❌ ${errorMsg}${hint}`);
+                }
+            } catch (e) { alert("❌ 网络连接失败: " + e.message); }
+        }
+
+        async function loadList() {
+            const pw = document.getElementById('mainPw').value; if (!pw) return alert("请输入密码解密");
+            const listDiv = document.getElementById('notesList');
+            try {
+                const res = await fetch(`${API_URL}/api/list`, { headers: { 'Authorization': ADMIN_KEY } });
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    const errorMsg = errorData.error || "获取列表失败";
+                    const hint = errorData.hint ? `\n\n💡 ${errorData.hint}` : "";
+                    alert(`❌ ${errorMsg}${hint}`);
+                    return;
+                }
+                const notes = await res.json(); listDiv.innerHTML = "";
+                if (notes.length === 0) listDiv.innerHTML = '<div class="text-center py-20 text-slate-700 italic text-sm">暂无数据</div>';
+                for (let n of notes) {
+                    const clearText = await decrypt(n.content, pw) || "🔒 [加密数据 / 密码不匹配]";
+                    const card = document.createElement('div');
+                    card.className = "note-card glass p-6 rounded-3xl space-y-4 border border-white/5 shadow-lg group";
+                    
+                    let imageHtml = '';
+                    if (n.has_image && n.image_data) {
+                        try {
+                            const imgBlob = await decryptImage({
+                                data: n.image_data,
+                                iv: JSON.parse(n.image_iv || '[]'),
+                                type: n.image_type
+                            }, pw);
+                            const imgUrl = URL.createObjectURL(imgBlob);
+                            imageHtml = `<div class="mt-4"><img src="${imgUrl}" class="image-preview rounded-xl border border-slate-700 cursor-pointer" onclick="window.open('${imgUrl}', '_blank')"></div>`;
+                        } catch (e) {
+                            imageHtml = '<div class="text-xs text-red-400 mt-2">🔒 图片解密失败</div>';
+                        }
+                    }
+
+                    card.innerHTML = `
+                    <div class="flex justify-between text-[9px] font-black text-slate-500 tracking-widest uppercase italic">
+                        <span>索引编号 #${n.id} ${n.has_image ? '📷' : ''}</span>
+                        <span>${new Date(n.created_at).toLocaleString()}</span>
+                    </div>
+                    <div class="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">${clearText}</div>
+                    ${imageHtml}
+                    <div class="pt-4 border-t border-white/5 flex flex-wrap gap-6 items-center">
+                        <button onclick="doShareCopy(${n.id})" class="text-xs font-black text-blue-400 uppercase tracking-widest hover:text-blue-300 transition">📤 生成阅后即焚链接</button>
+                        <button onclick="doExport(\`${clearText.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, ${n.id})" class="text-xs font-black text-emerald-500 uppercase tracking-widest hover:text-emerald-400 transition">💾 导出备份</button>
+                        <button onclick="doDelete(${n.id})" class="text-xs font-black text-rose-500 uppercase tracking-widest ml-auto opacity-40 group-hover:opacity-100 transition">🗑️ 删除</button>
+                    </div>
+                `;
+                    listDiv.appendChild(card);
+                }
+            } catch (e) { alert("拉取失败"); }
+        }
+
+        async function doShareCopy(noteId) {
+            const pid = Math.random().toString(36).substring(2, 12);
+            try {
+                // 获取原始笔记数据
+                const res = await fetch(`${API_URL}/api/list`, { headers: { 'Authorization': ADMIN_KEY } });
+                const notes = await res.json();
+                const note = notes.find(n => n.id === noteId);
+                if (!note) return alert("笔记不存在");
+
+                // 创建分享副本
+                const sharePayload = {
+                    content: note.content,
+                    public_id: pid,
+                    is_share_copy: 1
+                };
+                if (note.has_image) {
+                    sharePayload.has_image = 1;
+                    sharePayload.image_data = note.image_data;
+                    sharePayload.image_type = note.image_type;
+                    sharePayload.image_iv = note.image_iv;
+                }
+
+                await fetch(`${API_URL}/api/save`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': ADMIN_KEY },
+                    body: JSON.stringify(sharePayload)
+                });
+                
+                const fullUrl = `${window.location.origin}${window.location.pathname}?share=${pid}&cfg=${btoa(API_URL)}`;
+                
+                // 显示带复制按钮的提示
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4';
+                modal.innerHTML = `
+                    <div class="glass max-w-lg w-full p-8 rounded-3xl space-y-6 animate-in zoom-in duration-300">
+                        <h3 class="text-2xl font-bold text-center">🔗 阅后即焚链接已生成</h3>
+                        <div class="bg-slate-950/50 p-4 rounded-xl break-all text-sm text-slate-300 font-mono">${fullUrl}</div>
+                        <div class="flex gap-3">
+                            <button onclick="this.closest('.fixed').remove()" class="flex-1 py-4 glass rounded-2xl font-bold hover:bg-slate-800 transition">关闭</button>
+                            <button onclick="copyToClipboard('${fullUrl}', this)" class="flex-1 py-4 gradient-btn text-white font-bold rounded-2xl">📋 复制链接</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } catch (e) { alert("分享失败: " + e.message); }
+        }
+
+        async function copyToClipboard(text, btn) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const original = btn.innerHTML;
+                btn.innerHTML = '✅ 已复制';
+                btn.classList.add('copy-btn-success');
+                showToast('✅ 链接已复制到剪贴板');
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.classList.remove('copy-btn-success');
+                }, 2000);
+            } catch (err) {
+                prompt('请手动复制此链接:', text);
             }
         }
+
+        async function doExport(text, id) {
+            const date = new Date().toISOString().split('T')[0];
+            const pw = document.getElementById('mainPw').value;
+            
+            try {
+                // 获取笔记数据以检查是否有图片
+                const res = await fetch(`${API_URL}/api/list`, { headers: { 'Authorization': ADMIN_KEY } });
+                const notes = await res.json();
+                const note = notes.find(n => n.id === id);
+                
+                // 导出文本
+                const textBlob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const textUrl = URL.createObjectURL(textBlob);
+                const textLink = document.createElement('a');
+                textLink.href = textUrl;
+                textLink.download = `CloudNote_${id}_${date}.txt`;
+                textLink.click();
+                URL.revokeObjectURL(textUrl);
+                
+                // 如果有图片，也导出图片
+                if (note && note.has_image && note.image_data) {
+                    try {
+                        const imgBlob = await decryptImage({
+                            data: note.image_data,
+                            iv: JSON.parse(note.image_iv || '[]'),
+                            type: note.image_type
+                        }, pw);
+                        
+                        // 获取图片扩展名
+                        const ext = note.image_type.split('/')[1] || 'png';
+                        const imgUrl = URL.createObjectURL(imgBlob);
+                        const imgLink = document.createElement('a');
+                        imgLink.href = imgUrl;
+                        imgLink.download = `CloudNote_${id}_${date}_image.${ext}`;
+                        
+                        // 延迟一点下载图片，避免浏览器阻止多次下载
+                        setTimeout(() => {
+                            imgLink.click();
+                            URL.revokeObjectURL(imgUrl);
+                            showToast('✅ 已导出文本和图片');
+                        }, 500);
+                    } catch (e) {
+                        console.error('图片导出失败:', e);
+                        showToast('⚠️ 文本已导出，但图片解密失败');
+                    }
+                } else {
+                    showToast('✅ 已导出文本');
+                }
+            } catch (e) {
+                console.error('导出失败:', e);
+                showToast('❌ 导出失败: ' + e.message);
+            }
+        }
+
+        async function doDelete(id) {
+            if (!confirm("确定要物理抹除这条记录吗？")) return;
+            await fetch(`${API_URL}/api/delete`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': ADMIN_KEY },
+                body: JSON.stringify({ id: id })
+            });
+            loadList();
+        }
+
+        async function doAI() {
+            const text = document.getElementById('noteInput').value; if (!text) return alert("笔记为空");
+            const btn = event.target; btn.innerText = "思考中..."; btn.disabled = true;
+            try {
+                const res = await fetch(`${API_URL}/api/ai-sum`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': ADMIN_KEY },
+                    body: JSON.stringify({ text: text.substring(0, 1000) })
+                });
+                const data = await res.json();
+                if (data.error) {
+                    alert(`❌ ${data.error}\n\n${data.summary || ''}`);
+                } else {
+                    document.getElementById('noteInput').value += `\n\n--- ✨ AI SUMMARY ---\n${data.summary}`;
+                }
+            } finally { btn.innerText = "✨ AI 智能总结"; btn.disabled = false; }
+        }
+
+        async function doUnlockShare() {
+            const pw = document.getElementById('sharePw').value;
+            const resDiv = document.getElementById('shareResult');
+            const imgDiv = document.getElementById('shareImageResult');
+            const btn = document.getElementById('unlockBtn');
+            
+            try {
+                const res = await fetch(`${API_URL}/api/share/${shareId}`);
+                if (!res.ok) return alert("失效或已被焚毁");
+                const data = await res.json();
+                const clearText = await decrypt(data.content, pw);
+                
+                if (clearText) {
+                    resDiv.innerText = clearText;
+                    resDiv.classList.remove('hidden');
+                    
+                    // 如果有图片，解密并显示
+                    if (data.has_image && data.image_data) {
+                        try {
+                            const imgBlob = await decryptImage({
+                                data: data.image_data,
+                                iv: JSON.parse(data.image_iv || '[]'),
+                                type: data.image_type
+                            }, pw);
+                            const imgUrl = URL.createObjectURL(imgBlob);
+                            document.getElementById('shareImg').src = imgUrl;
+                            imgDiv.classList.remove('hidden');
+                        } catch (e) {
+                            console.error('图片解密失败:', e);
+                        }
+                    }
+                    
+                    btn.disabled = true;
+                    btn.innerText = "🔥 数据已销毁";
+                    showToast('⚠️ 内容已解密，服务器数据已永久删除');
+                }
+                else alert("密码错误");
+            } catch (e) { alert("网络异常: " + e.message); }
+        }
+
+        // 图片处理函数
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 验证文件类型
+            if (!file.type.match(/^image\/(png|jpeg|jpg|gif|webp)$/)) {
+                alert('❌ 仅支持 PNG、JPG、GIF、WEBP 格式');
+                event.target.value = '';
+                return;
+            }
+
+            // 验证文件大小 - D1 数据库限制，建议 < 700KB
+            const maxSize = 700 * 1024; // 700KB
+            if (file.size > maxSize) {
+                alert(`❌ 图片太大 (${(file.size / 1024).toFixed(1)} KB)\n\n由于数据库限制，图片大小必须小于 700KB\n\n💡 建议:\n1. 使用在线工具压缩图片: https://tinypng.com\n2. 或使用图片编辑软件降低质量\n3. 或调整图片尺寸`);
+                event.target.value = '';
+                return;
+            }
+
+            selectedImage = file;
+            
+            // 显示预览
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('imagePreview').classList.remove('hidden');
+                const sizeKB = (file.size / 1024).toFixed(1);
+                const sizeClass = file.size < 500 * 1024 ? 'text-green-400' : 'text-yellow-400';
+                document.getElementById('imageStatus').textContent = `✅ ${file.name} (${sizeKB} KB)`;
+                document.getElementById('imageStatus').className = `text-xs ${sizeClass}`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage() {
+            selectedImage = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('imageStatus').textContent = '支持 PNG/JPG/GIF/WEBP，最大 700KB';
+            document.getElementById('imageStatus').className = 'text-xs text-slate-500';
+        }
+
+        async function encryptImage(file, password) {
+            const arrayBuffer = await file.arrayBuffer();
+            const key = await getK(password);
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encrypted = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                arrayBuffer
+            );
+            
+            // 使用分块方式转换为 Base64，避免栈溢出
+            const encryptedArray = new Uint8Array(encrypted);
+            const chunkSize = 8192;
+            let binaryString = '';
+            
+            for (let i = 0; i < encryptedArray.length; i += chunkSize) {
+                const chunk = encryptedArray.subarray(i, Math.min(i + chunkSize, encryptedArray.length));
+                binaryString += String.fromCharCode.apply(null, chunk);
+            }
+            
+            return {
+                data: btoa(binaryString),
+                iv: Array.from(iv),
+                type: file.type
+            };
+        }
+
+        async function decryptImage(encryptedData, password) {
+            const { data, iv, type } = encryptedData;
+            const key = await getK(password);
+            const binaryString = atob(data);
+            
+            // 使用分块方式处理大数据
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            const decrypted = await crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv: new Uint8Array(iv) },
+                key,
+                bytes
+            );
+            return new Blob([decrypted], { type });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast glass px-6 py-4 rounded-2xl shadow-2xl font-bold';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch(err => console.error('Service Worker Registration Failed', err));
+        }
+
+        init();
     </script>
 </body>
+
 </html>
