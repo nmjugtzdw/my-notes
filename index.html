@@ -128,6 +128,62 @@
         const app = document.getElementById('app');
         let selectedImage = null; // 存储选中的图片文件
 
+        // 微信浏览器检测函数
+        function isWeChat() {
+            const ua = navigator.userAgent.toLowerCase();
+            return ua.includes('micromessenger');
+        }
+
+        // 其他内置浏览器检测（QQ、钉钉等）
+        function isInAppBrowser() {
+            const ua = navigator.userAgent.toLowerCase();
+            return ua.includes('micromessenger') ||
+                   ua.includes('qq/') ||
+                   ua.includes('dingtalk') ||
+                   ua.includes('alipay');
+        }
+
+        // 显示跳转提示页面
+        function showBrowserRedirect() {
+            app.innerHTML = `
+                <div class="glass p-8 md:p-12 rounded-[3rem] shadow-2xl text-center space-y-8 animate-in zoom-in duration-500">
+                    <div class="text-6xl animate-bounce">⚠️</div>
+                    <div class="space-y-4">
+                        <h1 class="text-3xl font-black">请在浏览器中打开</h1>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            为了您的隐私安全，请使用外部浏览器访问此页面
+                        </p>
+                    </div>
+                    
+                    <div class="bg-slate-900/50 p-6 rounded-2xl space-y-4 text-left">
+                        <div class="text-sm text-slate-300 space-y-2">
+                            <p class="font-bold text-blue-400">📱 如何在外部浏览器打开：</p>
+                            <div class="pl-4 space-y-1 text-xs">
+                                <p>• <span class="font-semibold">微信：</span>点击右上角 [ ··· ] → 选择"在浏览器中打开"</p>
+                                <p>• <span class="font-semibold">QQ：</span>点击右上角 [ ··· ] → 选择"在浏览器中打开"</p>
+                                <p>• <span class="font-semibold">钉钉：</span>点击右上角 [ ··· ] → 选择"在浏览器中打开"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 p-4 rounded-2xl">
+                        <p class="text-xs text-orange-300 leading-relaxed">
+                            💡 推荐使用 Safari、Chrome、Edge 等浏览器访问
+                        </p>
+                    </div>
+
+                    <div class="pt-4 text-xs text-slate-600 space-y-2">
+                        <p>当前检测到的浏览器：</p>
+                        <p class="font-mono text-[10px] text-slate-500 break-all">${navigator.userAgent}</p>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/5">
+                        <a href="https://www.zzzmxxkj.com" target="_blank" class="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-slate-400 transition">@桢鸣科技</a>
+                    </div>
+                </div>
+            `;
+        }
+
         // 加解密逻辑
         async function getK(pw) {
             const enc = new TextEncoder();
@@ -148,6 +204,12 @@
         }
 
         function init() {
+            // 如果是分享链接且在内置浏览器中打开，显示跳转提示
+            if (shareId && isInAppBrowser()) {
+                showBrowserRedirect();
+                return;
+            }
+            
             if (shareId) renderShareView();
             else if (!API_URL) renderWelcomeView();
             else renderMainView();
