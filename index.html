@@ -476,103 +476,31 @@
                     body: JSON.stringify(sharePayload)
                 });
                 
-                const directUrl = `${window.location.origin}${window.location.pathname}?share=${pid}&cfg=${btoa(API_URL)}`;
+                const fullUrl = `${window.location.origin}${window.location.pathname}?share=${pid}&cfg=${btoa(API_URL)}`;
                 
-                // 显示加载中的模态框
+                // 显示带复制按钮的提示
                 const modal = document.createElement('div');
                 modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4';
                 modal.innerHTML = `
                     <div class="glass max-w-lg w-full p-8 rounded-3xl space-y-6 animate-in zoom-in duration-300">
-                        <h3 class="text-2xl font-bold text-center">🔗 正在生成分享链接...</h3>
-                        <div class="flex justify-center py-8">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                        <h3 class="text-2xl font-bold text-center">🔗 阅后即焚链接已生成</h3>
+                        
+                        <div class="bg-slate-950/50 p-4 rounded-xl break-all text-sm text-slate-300 font-mono">${fullUrl}</div>
+                        
+                        <div class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl">
+                            <p class="text-xs text-blue-300 leading-relaxed">
+                                💡 <strong>温馨提示:</strong> 如果在微信中分享此链接，收到链接的用户需要点击右上角 <strong>[···]</strong> 菜单，选择 <strong>"在浏览器中打开"</strong> 才能正常访问。
+                            </p>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button onclick="this.closest('.fixed').remove()" class="flex-1 py-4 glass rounded-2xl font-bold hover:bg-slate-800 transition">关闭</button>
+                            <button onclick="copyToClipboard('${fullUrl}', this)" class="flex-1 py-4 gradient-btn text-white font-bold rounded-2xl">📋 复制链接</button>
                         </div>
                     </div>
                 `;
                 document.body.appendChild(modal);
-                
-                // 生成短链接(直接链接)
-                const shortUrl = await createShortUrl(directUrl);
-                
-                // 更新模态框内容
-                modal.innerHTML = `
-                    <div class="glass max-w-lg w-full p-8 rounded-3xl space-y-6 animate-in zoom-in duration-300">
-                        <h3 class="text-2xl font-bold text-center">🔗 分享链接已生成</h3>
-                        
-                        <div class="space-y-4">
-                            ${shortUrl ? `
-                                <div class="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl">
-                                    <p class="text-xs text-emerald-300 mb-2 font-bold">✅ 短链接:</p>
-                                    <div class="bg-slate-950/50 p-3 rounded-lg break-all text-sm text-slate-300 font-mono">${shortUrl}</div>
-                                    <button onclick="copyToClipboard('${shortUrl}', this)" class="w-full mt-3 py-3 gradient-btn text-white font-bold rounded-xl text-sm">📋 复制短链接</button>
-                                </div>
-                            ` : ''}
-                            
-                            <div class="bg-slate-900/50 p-4 rounded-xl">
-                                <p class="text-xs text-slate-400 mb-2 font-bold">原始链接:</p>
-                                <div class="bg-slate-950/50 p-3 rounded-lg break-all text-xs text-slate-500 font-mono">${directUrl}</div>
-                                <button onclick="copyToClipboard('${directUrl}', this)" class="w-full mt-3 py-2 glass rounded-xl font-bold hover:bg-slate-800 transition text-xs">📋 复制原始链接</button>
-                            </div>
-                            
-                            <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl">
-                                <p class="text-xs text-amber-300 leading-relaxed">
-                                    ⚠️ <strong>重要提示:</strong> 由于当前域名被微信拦截，短链接在微信中可能仍会被拦截。<br><br>
-                                    💡 <strong>解决方案:</strong> 用户在微信中点击链接后，按照页面提示点击右上角"..."选择"在浏览器中打开"即可正常访问。
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <button onclick="this.closest('.fixed').remove()" class="w-full py-4 glass rounded-2xl font-bold hover:bg-slate-800 transition">关闭</button>
-                    </div>
-                `;
-            } catch (e) {
-                alert("分享失败: " + e.message);
-            }
-        }
-        
-        // 创建短链接 - 使用免费的短链接服务
-        async function createShortUrl(longUrl) {
-            // 尝试多个免费短链接服务
-            const services = [
-                {
-                    name: 'TinyURL',
-                    url: `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`
-                },
-                {
-                    name: 'is.gd',
-                    url: `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`
-                },
-                {
-                    name: 'v.gd',
-                    url: `https://v.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`
-                }
-            ];
-            
-            // 依次尝试每个服务
-            for (const service of services) {
-                try {
-                    const response = await fetch(service.url, {
-                        method: 'GET',
-                        mode: 'cors'
-                    });
-                    
-                    if (response.ok) {
-                        const shortUrl = await response.text();
-                        // 验证返回的是有效的URL
-                        if (shortUrl && shortUrl.startsWith('http')) {
-                            console.log(`短链接生成成功 (${service.name}):`, shortUrl);
-                            return shortUrl.trim();
-                        }
-                    }
-                } catch (e) {
-                    console.warn(`${service.name} 服务失败:`, e);
-                    continue; // 尝试下一个服务
-                }
-            }
-            
-            // 所有服务都失败
-            console.error('所有短链接服务均不可用');
-            return null;
+            } catch (e) { alert("分享失败: " + e.message); }
         }
 
         async function copyToClipboard(text, btn) {
