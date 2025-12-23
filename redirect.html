@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正在跳转...</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .icon { font-size: 64px; margin-bottom: 20px; animation: bounce 1s infinite; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        h1 { font-size: 28px; margin-bottom: 15px; font-weight: 800; }
+        p { font-size: 14px; opacity: 0.9; line-height: 1.6; margin-bottom: 30px; }
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); }
+        .steps {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+            font-size: 13px;
+        }
+        .steps h3 { margin-bottom: 15px; font-size: 16px; }
+        .steps li { margin: 10px 0; padding-left: 10px; }
+        .url-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .copy-hint { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🚀</div>
+        <h1>请在浏览器中打开</h1>
+        <p>检测到您正在微信/QQ等应用中访问，为了获得最佳体验，请在浏览器中打开此链接</p>
+        
+        <div class="url-box" id="urlBox" onclick="copyUrl()">
+            <div id="targetUrl">加载中...</div>
+            <div class="copy-hint">点击复制链接</div>
+        </div>
+
+        <div class="steps">
+            <h3>📱 操作步骤：</h3>
+            <ol>
+                <li>点击上方链接复制</li>
+                <li>点击右上角 [...] 菜单</li>
+                <li>选择"在浏览器中打开"或"在Safari中打开"</li>
+            </ol>
+        </div>
+
+        <p style="margin-top: 20px; font-size: 12px; opacity: 0.6;">
+            如无法打开，请将链接复制到 Safari、Chrome 等浏览器中访问
+        </p>
+    </div>
+
+    <script>
+        // 获取URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUrl = urlParams.get('target') || urlParams.get('url');
+        
+        if (targetUrl) {
+            try {
+                const decodedUrl = decodeURIComponent(targetUrl);
+                document.getElementById('targetUrl').textContent = decodedUrl;
+                
+                // 检测是否在微信/QQ等应用内
+                const ua = navigator.userAgent.toLowerCase();
+                const isInApp = ua.includes('micromessenger') || ua.includes('qq/') || ua.includes('dingtalk');
+                
+                // 如果不在应用内，直接跳转
+                if (!isInApp) {
+                    window.location.href = decodedUrl;
+                }
+            } catch (e) {
+                document.getElementById('targetUrl').textContent = '链接格式错误';
+            }
+        } else {
+            document.getElementById('targetUrl').textContent = '缺少目标链接';
+        }
+
+        function copyUrl() {
+            const url = document.getElementById('targetUrl').textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    const box = document.getElementById('urlBox');
+                    const original = box.style.background;
+                    box.style.background = 'rgba(0, 255, 0, 0.3)';
+                    setTimeout(() => { box.style.background = original; }, 500);
+                    alert('✅ 链接已复制！请在浏览器中粘贴打开');
+                }).catch(() => {
+                    prompt('请手动复制此链接:', url);
+                });
+            } else {
+                prompt('请手动复制此链接:', url);
+            }
+        }
+    </script>
+</body>
+</html>
