@@ -508,8 +508,19 @@
                 key,
                 arrayBuffer
             );
+            
+            // 使用分块方式转换为 Base64，避免栈溢出
+            const encryptedArray = new Uint8Array(encrypted);
+            const chunkSize = 8192;
+            let binaryString = '';
+            
+            for (let i = 0; i < encryptedArray.length; i += chunkSize) {
+                const chunk = encryptedArray.subarray(i, Math.min(i + chunkSize, encryptedArray.length));
+                binaryString += String.fromCharCode.apply(null, chunk);
+            }
+            
             return {
-                data: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
+                data: btoa(binaryString),
                 iv: Array.from(iv),
                 type: file.type
             };
@@ -519,10 +530,13 @@
             const { data, iv, type } = encryptedData;
             const key = await getK(password);
             const binaryString = atob(data);
+            
+            // 使用分块方式处理大数据
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i);
             }
+            
             const decrypted = await crypto.subtle.decrypt(
                 { name: 'AES-GCM', iv: new Uint8Array(iv) },
                 key,
