@@ -279,8 +279,12 @@
                     document.getElementById('noteInput').value = "";
                     clearImage();
                     loadList();
+                } else {
+                    const errorData = await res.json().catch(() => ({}));
+                    const errorMsg = errorData.error || "保存失败";
+                    const hint = errorData.hint ? `\n\n💡 提示: ${errorData.hint}` : "";
+                    alert(`❌ ${errorMsg}${hint}`);
                 }
-                else alert("❌ 暗号错误");
             } catch (e) { alert("❌ 网络连接失败: " + e.message); }
         }
 
@@ -289,6 +293,13 @@
             const listDiv = document.getElementById('notesList');
             try {
                 const res = await fetch(`${API_URL}/api/list`, { headers: { 'Authorization': ADMIN_KEY } });
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    const errorMsg = errorData.error || "获取列表失败";
+                    const hint = errorData.hint ? `\n\n💡 ${errorData.hint}` : "";
+                    alert(`❌ ${errorMsg}${hint}`);
+                    return;
+                }
                 const notes = await res.json(); listDiv.innerHTML = "";
                 if (notes.length === 0) listDiv.innerHTML = '<div class="text-center py-20 text-slate-700 italic text-sm">暂无数据</div>';
                 for (let n of notes) {
@@ -417,7 +428,11 @@
                     body: JSON.stringify({ text: text.substring(0, 1000) })
                 });
                 const data = await res.json();
-                document.getElementById('noteInput').value += `\n\n--- ✨ AI SUMMARY ---\n${data.summary}`;
+                if (data.error) {
+                    alert(`❌ ${data.error}\n\n${data.summary || ''}`);
+                } else {
+                    document.getElementById('noteInput').value += `\n\n--- ✨ AI SUMMARY ---\n${data.summary}`;
+                }
             } finally { btn.innerText = "✨ AI 智能总结"; btn.disabled = false; }
         }
 
