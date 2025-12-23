@@ -188,7 +188,7 @@
                             <button onclick="document.getElementById('imageInput').click()" type="button" class="glass px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition flex items-center gap-2">
                                 📷 <span>添加图片 (可选)</span>
                             </button>
-                            <span id="imageStatus" class="text-xs text-slate-500">支持 PNG/JPG/GIF/WEBP，最大 5MB</span>
+                            <span id="imageStatus" class="text-xs text-slate-500">支持 PNG/JPG/GIF/WEBP，最大 700KB</span>
                         </div>
                         <div id="imagePreview" class="mt-4 hidden">
                             <div class="relative inline-block">
@@ -481,15 +481,18 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // 验证文件大小 (5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('图片大小不能超过 5MB');
+            // 验证文件类型
+            if (!file.type.match(/^image\/(png|jpeg|jpg|gif|webp)$/)) {
+                alert('❌ 仅支持 PNG、JPG、GIF、WEBP 格式');
+                event.target.value = '';
                 return;
             }
 
-            // 验证文件类型
-            if (!file.type.match(/^image\/(png|jpeg|jpg|gif|webp)$/)) {
-                alert('仅支持 PNG、JPG、GIF、WEBP 格式');
+            // 验证文件大小 - D1 数据库限制，建议 < 700KB
+            const maxSize = 700 * 1024; // 700KB
+            if (file.size > maxSize) {
+                alert(`❌ 图片太大 (${(file.size / 1024).toFixed(1)} KB)\n\n由于数据库限制，图片大小必须小于 700KB\n\n💡 建议:\n1. 使用在线工具压缩图片: https://tinypng.com\n2. 或使用图片编辑软件降低质量\n3. 或调整图片尺寸`);
+                event.target.value = '';
                 return;
             }
 
@@ -500,8 +503,10 @@
             reader.onload = (e) => {
                 document.getElementById('previewImg').src = e.target.result;
                 document.getElementById('imagePreview').classList.remove('hidden');
-                document.getElementById('imageStatus').textContent = `已选择: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                document.getElementById('imageStatus').className = 'text-xs text-green-400';
+                const sizeKB = (file.size / 1024).toFixed(1);
+                const sizeClass = file.size < 500 * 1024 ? 'text-green-400' : 'text-yellow-400';
+                document.getElementById('imageStatus').textContent = `✅ ${file.name} (${sizeKB} KB)`;
+                document.getElementById('imageStatus').className = `text-xs ${sizeClass}`;
             };
             reader.readAsDataURL(file);
         }
@@ -510,7 +515,7 @@
             selectedImage = null;
             document.getElementById('imageInput').value = '';
             document.getElementById('imagePreview').classList.add('hidden');
-            document.getElementById('imageStatus').textContent = '支持 PNG/JPG/GIF/WEBP，最大 5MB';
+            document.getElementById('imageStatus').textContent = '支持 PNG/JPG/GIF/WEBP，最大 700KB';
             document.getElementById('imageStatus').className = 'text-xs text-slate-500';
         }
 
