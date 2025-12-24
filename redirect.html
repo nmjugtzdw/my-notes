@@ -18,6 +18,7 @@
         }
         .container {
             background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 30px;
             padding: 40px;
@@ -46,6 +47,8 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); }
+        .btn.secondary { background: rgba(255, 255, 255, 0.15); color: white; box-shadow: none; }
+        .btn.secondary:hover { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); }
         .steps {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 20px;
@@ -67,6 +70,7 @@
             cursor: pointer;
         }
         .copy-hint { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
     </style>
 </head>
 <body>
@@ -78,6 +82,11 @@
         <div class="url-box" id="urlBox" onclick="copyUrl()">
             <div id="targetUrl">加载中...</div>
             <div class="copy-hint">点击复制链接</div>
+        </div>
+
+        <div class="btn-row">
+            <a class="btn" href="javascript:void(0)" onclick="copyUrl()">📋 复制链接</a>
+            <a class="btn secondary" href="javascript:void(0)" onclick="openInBrowser()">🌐 在浏览器打开</a>
         </div>
 
         <div class="steps">
@@ -103,15 +112,6 @@
             try {
                 const decodedUrl = decodeURIComponent(targetUrl);
                 document.getElementById('targetUrl').textContent = decodedUrl;
-                
-                // 检测是否在微信/QQ等应用内
-                const ua = navigator.userAgent.toLowerCase();
-                const isInApp = ua.includes('micromessenger') || ua.includes('qq/') || ua.includes('dingtalk');
-                
-                // 如果不在应用内，直接跳转
-                if (!isInApp) {
-                    window.location.href = decodedUrl;
-                }
             } catch (e) {
                 document.getElementById('targetUrl').textContent = '链接格式错误';
             }
@@ -134,6 +134,12 @@
             } else {
                 prompt('请手动复制此链接:', url);
             }
+        }
+
+        function openInBrowser() {
+            const url = document.getElementById('targetUrl').textContent;
+            if (!url || url === '加载中...' || url === '缺少目标链接' || url === '链接格式错误') return;
+            window.location.href = url;
         }
     </script>
 </body>
