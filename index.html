@@ -478,7 +478,7 @@
                 });
                 
                 const shareUrl = `${window.location.origin}${window.location.pathname}?share=${pid}&cfg=${btoa(API_URL)}`;
-                const fullUrl = `https://c.pc.qq.com/middlem.html?pfurl=${encodeURIComponent(shareUrl)}`;
+                const wechatUrl = `https://c.pc.qq.com/middlem.html?pfurl=${encodeURIComponent(shareUrl)}`;
                 
                 // 显示带复制按钮的提示
                 const modal = document.createElement('div');
@@ -487,17 +487,27 @@
                     <div class="glass max-w-lg w-full p-8 rounded-3xl space-y-6 animate-in zoom-in duration-300">
                         <h3 class="text-2xl font-bold text-center">🔗 阅后即焚链接已生成</h3>
                         
-                        <div class="bg-slate-950/50 p-4 rounded-xl break-all text-sm text-slate-300 font-mono">${fullUrl}</div>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="text-[10px] uppercase tracking-widest text-slate-400 font-bold ml-1">原始直达链接</div>
+                                <div class="bg-slate-950/50 p-4 rounded-xl break-all text-sm text-slate-300 font-mono">${shareUrl}</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] uppercase tracking-widest text-slate-400 font-bold ml-1">微信中转链接</div>
+                                <div class="bg-slate-950/50 p-4 rounded-xl break-all text-xs text-slate-400 font-mono">${wechatUrl}</div>
+                            </div>
+                        </div>
                         
                         <div class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl">
                             <p class="text-xs text-blue-300 leading-relaxed">
-                                💡 <strong>温馨提示:</strong> 如果在微信中分享此链接，收到链接的用户需要点击右上角 <strong>[···]</strong> 菜单，选择 <strong>"在浏览器中打开"</strong> 才能正常访问。
+                                💡 <strong>温馨提示:</strong> 在 Chrome/Safari/Edge 中打开请用“原始直达链接”。从微信内分享/点开时可选“微信中转链接”。
                             </p>
                         </div>
                         
                         <div class="flex gap-3">
                             <button onclick="this.closest('.fixed').remove()" class="flex-1 py-4 glass rounded-2xl font-bold hover:bg-slate-800 transition">关闭</button>
-                            <button onclick="copyToClipboard('${fullUrl}', this)" class="flex-1 py-4 gradient-btn text-white font-bold rounded-2xl">📋 复制链接</button>
+                            <button onclick="copyToClipboard('${shareUrl}', this)" class="flex-1 py-4 gradient-btn text-white font-bold rounded-2xl">📋 复制原始链接</button>
+                            <button onclick="copyToClipboard('${wechatUrl}', this)" class="flex-1 py-4 glass text-blue-300 font-bold rounded-2xl">📋 复制微信链接</button>
                         </div>
                     </div>
                 `;
