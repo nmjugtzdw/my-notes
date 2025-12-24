@@ -478,7 +478,7 @@
                 });
                 
                 const shareUrl = `${window.location.origin}${window.location.pathname}?share=${pid}&cfg=${btoa(API_URL)}`;
-                const fullUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/i, '')}redirect.html?target=${encodeURIComponent(shareUrl)}`;
+                const fullUrl = `https://c.pc.qq.com/middlem.html?pfurl=${encodeURIComponent(shareUrl)}`;
                 
                 // 显示带复制按钮的提示
                 const modal = document.createElement('div');
