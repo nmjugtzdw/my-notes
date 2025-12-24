@@ -112,6 +112,13 @@
             try {
                 const decodedUrl = decodeURIComponent(targetUrl);
                 document.getElementById('targetUrl').textContent = decodedUrl;
+
+                // 仅在微信/QQ等内置浏览器停留引导页；在系统浏览器中直接跳转
+                const ua = navigator.userAgent.toLowerCase();
+                const isInApp = ua.includes('micromessenger') || ua.includes('qq/') || ua.includes('dingtalk') || ua.includes('alipay');
+                if (!isInApp) {
+                    window.location.replace(decodedUrl);
+                }
             } catch (e) {
                 document.getElementById('targetUrl').textContent = '链接格式错误';
             }
