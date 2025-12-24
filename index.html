@@ -122,7 +122,7 @@
         if (cfgFromUrl) { try { apiFromUrl = atob(cfgFromUrl); } catch (e) { } }
         const shareId = urlParams.get('share');
 
-        let API_URL = apiFromUrl || localStorage.getItem('cf_notes_api') || "";
+        let API_URL = apiFromUrl || localStorage.getItem('cf_notes_api') || "https://api-notes.kkku.dpdns.org";
         let ADMIN_KEY = localStorage.getItem('cf_notes_key') || "";
 
         const app = document.getElementById('app');
