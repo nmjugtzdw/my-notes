@@ -490,11 +490,17 @@
                         <div class="space-y-3">
                             <div>
                                 <div class="text-[10px] uppercase tracking-widest text-slate-400 font-bold ml-1">原始直达链接</div>
-                                <div class="bg-slate-950/50 p-4 rounded-xl break-all text-sm text-slate-300 font-mono">${shareUrl}</div>
+                                <div class="flex gap-3 items-stretch">
+                                    <div class="flex-1 min-w-0 bg-slate-950/50 p-4 rounded-xl break-all text-sm text-slate-300 font-mono">${shareUrl}</div>
+                                    <button onclick="copyToClipboard('${shareUrl}', this)" class="px-4 glass rounded-xl font-bold hover:bg-slate-800 transition whitespace-nowrap">📋 复制</button>
+                                </div>
                             </div>
                             <div>
                                 <div class="text-[10px] uppercase tracking-widest text-slate-400 font-bold ml-1">微信中转链接</div>
-                                <div class="bg-slate-950/50 p-4 rounded-xl break-all text-xs text-slate-400 font-mono">${wechatUrl}</div>
+                                <div class="flex gap-3 items-stretch">
+                                    <div class="flex-1 min-w-0 bg-slate-950/50 p-4 rounded-xl break-all text-xs text-slate-400 font-mono">${wechatUrl}</div>
+                                    <button onclick="copyToClipboard('${wechatUrl}', this)" class="px-4 glass rounded-xl font-bold hover:bg-slate-800 transition whitespace-nowrap">📋 复制</button>
+                                </div>
                             </div>
                         </div>
                         
@@ -504,10 +510,8 @@
                             </p>
                         </div>
                         
-                        <div class="flex gap-3">
-                            <button onclick="this.closest('.fixed').remove()" class="flex-1 py-4 glass rounded-2xl font-bold hover:bg-slate-800 transition">关闭</button>
-                            <button onclick="copyToClipboard('${shareUrl}', this)" class="flex-1 py-4 gradient-btn text-white font-bold rounded-2xl">📋 复制原始链接</button>
-                            <button onclick="copyToClipboard('${wechatUrl}', this)" class="flex-1 py-4 glass text-blue-300 font-bold rounded-2xl">📋 复制微信链接</button>
+                        <div class="flex justify-center">
+                            <button onclick="this.closest('.fixed').remove()" class="px-10 py-4 glass rounded-2xl font-bold hover:bg-slate-800 transition">关闭</button>
                         </div>
                     </div>
                 `;
